@@ -38,6 +38,11 @@ app.get('/api/persons/:id', (req, res) => {
   }
 })
 
+app.delete('/api/persons/:id', (req, res) => {
+  phonebook = phonebook.filter(person => person.id !== Number(req.params.id))
+  res.status(204).end()
+})
+
 app.get('/info', (req, res) => {
   let info = `<p>Phonebook has info for ${phonebook.length} people</p>`
   info += new Date()
