@@ -28,6 +28,16 @@ app.get('/api/persons', (req, res) => {
   res.json(phonebook)
 })
 
+app.get('/api/persons/:id', (req, res) => {
+  const person = phonebook.find(person => person.id === Number(req.params.id))
+  if (person) {
+    res.json(person)
+  }
+  else {
+    res.status(404).end()
+  }
+})
+
 app.get('/info', (req, res) => {
   let info = `<p>Phonebook has info for ${phonebook.length} people</p>`
   info += new Date()
