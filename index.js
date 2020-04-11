@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let phonebook = [
   {
     "name": "John Barron",
@@ -41,6 +43,16 @@ app.get('/api/persons/:id', (req, res) => {
 app.delete('/api/persons/:id', (req, res) => {
   phonebook = phonebook.filter(person => person.id !== Number(req.params.id))
   res.status(204).end()
+})
+
+app.post('/api/persons', (req, res) => {
+  const newPerson = {
+    id: Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)),
+    name: req.body.name,
+    number: req.body.number
+  }
+  phonebook = phonebook.concat(newPerson)
+  res.json(newPerson)
 })
 
 app.get('/info', (req, res) => {
