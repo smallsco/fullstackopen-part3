@@ -1,8 +1,11 @@
+/* Dependencies */
 const express = require('express')
 const app = express()
 
+/* Middleware */
 app.use(express.json())
 
+/* "Database" */
 let phonebook = [
   {
     "name": "John Barron",
@@ -26,10 +29,13 @@ let phonebook = [
   },
 ]
 
+
+/* List all people */
 app.get('/api/persons', (req, res) => {
   res.json(phonebook)
 })
 
+/* List a specific person by ID */
 app.get('/api/persons/:id', (req, res) => {
   const person = phonebook.find(person => person.id === Number(req.params.id))
   if (person) {
@@ -40,12 +46,30 @@ app.get('/api/persons/:id', (req, res) => {
   }
 })
 
+/* Delete a person */
 app.delete('/api/persons/:id', (req, res) => {
   phonebook = phonebook.filter(person => person.id !== Number(req.params.id))
   res.status(204).end()
 })
 
+/* Add a new person */
 app.post('/api/persons', (req, res) => {
+  if (!req.body.name) {
+    return res.status(400).json({
+      error: 'Name is missing'
+    })
+  }
+  else if (!req.body.number) {
+    return res.status(400).json({
+      error: 'Number is missing'
+    })
+  }
+  else if (phonebook.some(person => person.name === req.body.name)) {
+    return res.status(400).json({
+      error: 'Person already exists'
+    })
+  }
+
   const newPerson = {
     id: Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)),
     name: req.body.name,
@@ -55,12 +79,14 @@ app.post('/api/persons', (req, res) => {
   res.json(newPerson)
 })
 
+/* Status page */
 app.get('/info', (req, res) => {
   let info = `<p>Phonebook has info for ${phonebook.length} people</p>`
   info += new Date()
   res.send(info)
 })
 
+/* Runs the server */
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
