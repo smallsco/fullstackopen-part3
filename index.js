@@ -5,6 +5,7 @@ const morgan = require('morgan')
 const app = express()
 
 /* Middleware */
+app.use(express.static('build'))
 app.use(cors())
 app.use(morgan(function (tokens, req, res) {
   return [
