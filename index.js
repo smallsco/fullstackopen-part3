@@ -1,8 +1,14 @@
-/* Dependencies */
+/* Environment Variables */
+require('dotenv').config()
+
+/* Third-Party Dependencies */
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 const app = express()
+
+/* Internal Dependencies */
+const Person = require('./models/person')
 
 /* Middleware */
 app.use(express.static('build'))
@@ -20,6 +26,7 @@ app.use(morgan(function (tokens, req, res) {
 app.use(express.json())
 
 /* "Database" */
+/* DEPRECATED - remove when all endpoints are updated to use MongoDB */
 let phonebook = [
   {
     "name": "John Barron",
@@ -46,7 +53,9 @@ let phonebook = [
 
 /* List all people */
 app.get('/api/persons', (req, res) => {
-  res.json(phonebook)
+  Person.find({}).then(phonebook => {
+    res.json(phonebook.map(person => person.toJSON()))
+  })
 })
 
 /* List a specific person by ID */
