@@ -87,19 +87,22 @@ app.post('/api/persons', (req, res) => {
       error: 'Number is missing'
     })
   }
-  else if (phonebook.some(person => person.name === req.body.name)) {
+
+  /* FIXME: needs to be updated to work with MongoDB */
+  /*else if (phonebook.some(person => person.name === req.body.name)) {
     return res.status(400).json({
       error: 'Person already exists'
     })
-  }
+  }*/
 
-  const newPerson = {
-    id: Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)),
+  const newPerson = new Person({
     name: req.body.name,
     number: req.body.number
-  }
-  phonebook = phonebook.concat(newPerson)
-  res.json(newPerson)
+  })
+
+  newPerson.save().then(response => {
+    res.json(response)
+  })
 })
 
 /* Status page */
