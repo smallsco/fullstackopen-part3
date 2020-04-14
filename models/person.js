@@ -1,4 +1,6 @@
+/* Initialize and configure Mongoose */
 const mongoose = require('mongoose')
+mongoose.set('useFindAndModify', false)
 
 /* Connect to MongoDB */
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true})

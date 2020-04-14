@@ -71,8 +71,9 @@ app.get('/api/persons/:id', (req, res) => {
 
 /* Delete a person */
 app.delete('/api/persons/:id', (req, res) => {
-  phonebook = phonebook.filter(person => person.id !== Number(req.params.id))
-  res.status(204).end()
+  Person.findByIdAndRemove(req.params.id).then(result => {
+    res.status(204).end()
+  })
 })
 
 /* Add a new person */
