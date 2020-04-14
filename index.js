@@ -25,31 +25,6 @@ app.use(morgan(function (tokens, req, res) {
 }))
 app.use(express.json())
 
-/* "Database" */
-/* DEPRECATED - remove when all endpoints are updated to use MongoDB */
-let phonebook = [
-  {
-    "name": "John Barron",
-    "number": "123-555-4567",
-    "id": 1
-  },
-  {
-    "name": "John Miller",
-    "number": "321-555-7654",
-    "id": 2
-  },
-  {
-    "name": "Carolin Gallego",
-    "number": "213-555-5467",
-    "id": 3
-  },
-  {
-    "name": "David Dennison",
-    "number": "231-555-6754",
-    "id": 4
-  },
-]
-
 
 /* List all people */
 app.get('/api/persons', (req, res, next) => {
@@ -59,14 +34,37 @@ app.get('/api/persons', (req, res, next) => {
 })
 
 /* List a specific person by ID */
-app.get('/api/persons/:id', (req, res) => {
-  const person = phonebook.find(person => person.id === Number(req.params.id))
-  if (person) {
-    res.json(person)
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id).then(result => {
+    if (result) {
+      res.json(result)
+    }
+    else {
+      res.status(404).end()
+    }
+  }).catch(error => next(error))
+})
+
+/* Update an existing person */
+app.put('/api/persons/:id', (req, res, next) => {
+  if (!req.body.name) {
+    return res.status(400).json({
+      error: 'Name is missing'
+    })
   }
-  else {
-    res.status(404).end()
+  else if (!req.body.number) {
+    return res.status(400).json({
+      error: 'Number is missing'
+    })
   }
+
+  const updatedPerson = {
+    name: req.body.name,
+    number: req.body.number
+  }
+  Person.findByIdAndUpdate(req.params.id, updatedPerson, {new: true}).then(result => {
+    res.json(result)
+  }).catch(error => next(error))
 })
 
 /* Delete a person */
@@ -89,13 +87,6 @@ app.post('/api/persons', (req, res, next) => {
     })
   }
 
-  /* FIXME: needs to be updated to work with MongoDB */
-  /*else if (phonebook.some(person => person.name === req.body.name)) {
-    return res.status(400).json({
-      error: 'Person already exists'
-    })
-  }*/
-
   const newPerson = new Person({
     name: req.body.name,
     number: req.body.number
@@ -108,10 +99,13 @@ app.post('/api/persons', (req, res, next) => {
 
 /* Status page */
 app.get('/info', (req, res) => {
-  let info = `<p>Phonebook has info for ${phonebook.length} people</p>`
-  info += new Date()
-  res.send(info)
+  Person.countDocuments({}).then(count => {
+    let info = `<p>Phonebook has info for ${count} people</p>`
+    info += new Date()
+    res.send(info)
+  }).catch(error => next(error))
 })
+
 
 /* Error Handler */
 const errorHandler = (error, req, res, next) => {
@@ -124,8 +118,9 @@ const errorHandler = (error, req, res, next) => {
 }
 app.use(errorHandler)
 
+
 /* Runs the server */
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
