@@ -52,10 +52,10 @@ let phonebook = [
 
 
 /* List all people */
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({}).then(phonebook => {
     res.json(phonebook.map(person => person.toJSON()))
-  })
+  }).catch(error => next(error))
 })
 
 /* List a specific person by ID */
@@ -70,14 +70,14 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 /* Delete a person */
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id).then(result => {
     res.status(204).end()
-  })
+  }).catch(error => next(error))
 })
 
 /* Add a new person */
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   if (!req.body.name) {
     return res.status(400).json({
       error: 'Name is missing'
@@ -103,7 +103,7 @@ app.post('/api/persons', (req, res) => {
 
   newPerson.save().then(response => {
     res.json(response)
-  })
+  }).catch(error => next(error))
 })
 
 /* Status page */
@@ -112,6 +112,17 @@ app.get('/info', (req, res) => {
   info += new Date()
   res.send(info)
 })
+
+/* Error Handler */
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError' && error.message.includes('ObjectId')) {
+    return res.status(400).send({ error: 'Malformed ID' })
+  }
+  next(error)
+}
+app.use(errorHandler)
 
 /* Runs the server */
 const PORT = process.env.PORT || 3001
