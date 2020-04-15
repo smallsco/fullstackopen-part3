@@ -5,8 +5,8 @@ mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)
 
 /* Connect to MongoDB */
-mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
-  .then(result => {
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
     console.log('Connected to MongoDB')
   })
   .catch((error) => {
@@ -15,14 +15,14 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopo
 
 /* Define data model */
 const phonebookSchema = new mongoose.Schema({
-  name: {type: String, minlength: 3, required: true, unique: true},
+  name: { type: String, minlength: 3, required: true, unique: true },
   number: {
     type: String,
     required: true,
     validate: {
       validator: (value) => (
         /* The phone number must contain at least 8 digits */
-        value.replace(/[^0-9]/g,"").length >= 8
+        value.replace(/[^0-9]/g,'').length >= 8
       )
     }
   },

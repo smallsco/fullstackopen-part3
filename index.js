@@ -51,14 +51,14 @@ app.put('/api/persons/:id', (req, res, next) => {
     name: req.body.name,
     number: req.body.number
   }
-  Person.findByIdAndUpdate(req.params.id, updatedPerson, {new: true}).then(result => {
+  Person.findByIdAndUpdate(req.params.id, updatedPerson, { new: true }).then(result => {
     res.json(result)
   }).catch(error => next(error))
 })
 
 /* Delete a person */
 app.delete('/api/persons/:id', (req, res, next) => {
-  Person.findByIdAndRemove(req.params.id).then(result => {
+  Person.findByIdAndRemove(req.params.id).then(() => {
     res.status(204).end()
   }).catch(error => next(error))
 })
@@ -76,7 +76,7 @@ app.post('/api/persons', (req, res, next) => {
 })
 
 /* Status page */
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
   Person.countDocuments({}).then(count => {
     let info = `<p>Phonebook has info for ${count} people</p>`
     info += new Date()
