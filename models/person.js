@@ -15,8 +15,17 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopo
 
 /* Define data model */
 const phonebookSchema = new mongoose.Schema({
-  name: {type: String, required: true, unique: true},
-  number: {type: String, required: true},
+  name: {type: String, minlength: 3, required: true, unique: true},
+  number: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (value) => (
+        /* The phone number must contain at least 8 digits */
+        value.replace(/[^0-9]/g,"").length >= 8
+      )
+    }
+  },
 })
 phonebookSchema.plugin(uniqueValidator)
 phonebookSchema.set('toJSON', {
